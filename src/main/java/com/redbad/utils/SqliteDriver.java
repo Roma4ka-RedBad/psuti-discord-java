@@ -1,11 +1,11 @@
-package com.redbad;
+package com.redbad.utils;
 
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
 
 public class SqliteDriver {
-    public static Connection connection;
+    public final Connection connection;
     public SqliteDriver(String fileName) throws SQLException, ClassNotFoundException {
         Class.forName("org.sqlite.JDBC");
         connection = DriverManager.getConnection("jdbc:sqlite:" + fileName);
@@ -14,7 +14,7 @@ public class SqliteDriver {
 
     public void createDatabase() throws SQLException {
         Statement cursor = connection.createStatement();
-        cursor.execute("CREATE TABLE IF NOT EXISTS 'groups' ('name' TEXT, 'guild_id' INTEGER, 'channel_id' INTEGER);");
+        cursor.execute("CREATE TABLE IF NOT EXISTS 'groups' ('name' TEXT, 'guild_id' BIGINT, 'channel_id' BIGINT);");
         cursor.execute("CREATE TABLE IF NOT EXISTS 'users' ('id' INTEGER PRIMARY KEY, 'background_link' TEXT);");
         cursor.close();
     }

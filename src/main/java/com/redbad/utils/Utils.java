@@ -1,20 +1,38 @@
-package com.redbad;
+package com.redbad.utils;
 
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
-import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import org.redbad.DescDay;
+import org.redbad.Parser;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Utils {
+    public static SimpleDateFormat weekdayPattern = new SimpleDateFormat("EEEE");
+    public static SimpleDateFormat datePattern = new SimpleDateFormat("dd.MM.yyyy");
+
+    public static boolean checkSiteConnection(Parser parser, SlashCommandInteractionEvent event) {
+        parser.getHTMLModel("");
+        if (!parser.requestBody.isDone) {
+            event.deferReply(true).flatMap(v -> event.getHook().editOriginalFormat("Упс! Кажется сайт накрылся :)")).queue();
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean checkSiteConnection(Parser parser, StringSelectInteractionEvent event) {
+        parser.getHTMLModel("");
+        if (!parser.requestBody.isDone) {
+            event.deferReply(true).flatMap(v -> event.getHook().editOriginalFormat("Упс! Кажется сайт накрылся :)")).queue();
+            return true;
+        }
+        return false;
+    }
+
     public static StringBuilder[] buildSqliteGroups(Map<String, Object> map) {
         StringBuilder fields = new StringBuilder("(");
         StringBuilder values = new StringBuilder("(");
@@ -49,12 +67,13 @@ public class Utils {
         int columnCount = metaData.getColumnCount();
         List<Map<String, Object>> resultList = new ArrayList<>();
 
-        // Обработка результатов ResultSet
         while (resultSet.next()) {
             Map<String, Object> resultMap = new HashMap<>();
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = metaData.getColumnName(i);
                 Object value = resultSet.getObject(i);
+                if (value instanceof Integer)
+                    value = ((Integer) value).longValue();
                 resultMap.put(columnName, value);
             }
             resultList.add(resultMap);
@@ -62,7 +81,7 @@ public class Utils {
         return resultList;
     }
 
-    public static List<Map<String, String>> group_parts(Map<String, String> map) {
+    public static List<Map<String, String>> divideMap(Map<String, String> map) {
         List<Map.Entry<String, String>> entryList = new ArrayList<>(map.entrySet());
         List<Map<String, String>> parts = new ArrayList<>();
 
@@ -77,30 +96,22 @@ public class Utils {
         return parts;
     }
 
-    public static MessageCreateData getStringSelectByMaps(List<Map<String, String>> list, String menu_id, String name) {
-        MessageCreateBuilder builder = new MessageCreateBuilder();
-        int index = 0;
-        for (Map<String, String> list_element : list) {
-            StringSelectMenu.Builder menu = StringSelectMenu.create(String.format(menu_id, index));
-            menu.setPlaceholder(String.format(name, index + 1));
-            for (Map.Entry<String, String> map_element : list_element.entrySet()) {
-                menu.addOption(map_element.getKey().toUpperCase(), map_element.getValue());
+    public static boolean containsArray(List<Long[]> list, Long[] targetArray) {
+        for (Long[] array : list) {
+            if (array.length == targetArray.length) {
+                boolean isEqual = true;
+                for (int i = 0; i < array.length; i++) {
+                    if (!array[i].equals(targetArray[i])) {
+                        isEqual = false;
+                        break;
+                    }
+                }
+                if (isEqual) {
+                    return true;
+                }
             }
-            builder.addActionRow(menu.build());
-            index += 1;
         }
-        return builder.build();
-    }
-
-    public static MessageCreateData getStringSelectByList(List<String> list, String menu_id, String name) {
-        MessageCreateBuilder builder = new MessageCreateBuilder();
-        StringSelectMenu.Builder menu = StringSelectMenu.create(menu_id);
-        menu.setPlaceholder(name);
-        for (String list_element : list) {
-            menu.addOption(list_element, Integer.toString(list.indexOf(list_element)));
-        }
-        builder.addActionRow(menu.build());
-        return builder.build();
+        return false;
     }
 
     public static String firstUpperCase(String word){
@@ -109,7 +120,6 @@ public class Utils {
     }
 
     public static ArrayList<String> getWeekdays(ArrayList<DescDay> days) {
-        SimpleDateFormat weekdayPattern = new SimpleDateFormat("EEEE");
         ArrayList<String> weekdays = new ArrayList<>();
         for (DescDay day : days) {
             weekdays.add(firstUpperCase(weekdayPattern.format(day.date)));
