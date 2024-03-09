@@ -1,4 +1,5 @@
 package com.redbad;
+
 import com.redbad.objects.Group;
 import com.redbad.utils.SqliteDriver;
 import org.redbad.DescWeek;
@@ -7,10 +8,12 @@ import org.redbad.Parser;
 import java.sql.*;
 import java.util.*;
 
+
 public class Database {
     public Map<String, Group> groups_list = new HashMap<>();
     public SqliteDriver driver;
     public boolean preloaded;
+
     public Database(String fileName) throws SQLException, ClassNotFoundException {
         driver = new SqliteDriver(fileName);
         preloaded = preloadFromDB();

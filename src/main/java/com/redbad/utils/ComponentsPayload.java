@@ -3,8 +3,10 @@ package com.redbad.utils;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class ComponentsPayload {
     public Map<String, Object> payloads;
+
     public ComponentsPayload() {
         this.payloads = new HashMap<>();
     }

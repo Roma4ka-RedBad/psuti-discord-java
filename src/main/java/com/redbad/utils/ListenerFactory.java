@@ -3,8 +3,10 @@ package com.redbad.utils;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class ListenerFactory {
     public Map<Object, Map<String, Object>> listeners;
+
     public ListenerFactory() {
         this.listeners = new HashMap<>();
     }
@@ -28,5 +30,4 @@ public class ListenerFactory {
         }
         return listener;
     }
-
 }

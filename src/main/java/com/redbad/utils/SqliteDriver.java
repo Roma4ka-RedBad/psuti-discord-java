@@ -4,8 +4,10 @@ import java.sql.*;
 import java.util.List;
 import java.util.Map;
 
+
 public class SqliteDriver {
     public final Connection connection;
+
     public SqliteDriver(String fileName) throws SQLException, ClassNotFoundException {
         Class.forName("org.sqlite.JDBC");
         connection = DriverManager.getConnection("jdbc:sqlite:" + fileName);

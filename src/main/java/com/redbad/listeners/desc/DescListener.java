@@ -1,6 +1,6 @@
 package com.redbad.listeners.desc;
 
-import com.redbad.listeners.Listener;
+import com.redbad.objects.Listener;
 import com.redbad.utils.ComponentsPayload;
 import com.redbad.utils.MessageConstructor;
 import com.redbad.utils.Utils;
@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+
 public class DescListener implements Listener<SlashCommandInteractionEvent> {
     private final ComponentsPayload payloadManager;
+
     public DescListener(ComponentsPayload payloadManager) {
         this.payloadManager = payloadManager;
     }
@@ -21,8 +23,8 @@ public class DescListener implements Listener<SlashCommandInteractionEvent> {
     public void run(SlashCommandInteractionEvent event, Parser parser) {
         Map<String, String> groups = parser.get_groups();
         MessageConstructor constructor = new MessageConstructor();
-        if (!Objects.isNull(event.getOption("group"))) {
-            String groupName = event.getOption("group").getAsString().toUpperCase();
+        if (event.getOption("group") != null) {
+            String groupName = Objects.requireNonNull(event.getOption("group")).getAsString().toUpperCase();
             if (groups.containsKey(groupName)) {
                 try {
                     DescWeek week = parser.get_desc_by_group(groups.get(groupName)).get_week();

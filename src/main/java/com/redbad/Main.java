@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.sql.SQLException;
 
+
 public class Main {
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
         JDABuilder builder = JDABuilder.createDefault("MTA4MDgwMDkyNzc1MTA4MjAwNA.GE2NJS.wxHlNU2A5lLJljhTchAvmk9iJJjr2egpfDuJzQ");
@@ -29,13 +30,14 @@ public class Main {
             return;
         }
 
-        builder.enableIntents(GatewayIntent.MESSAGE_CONTENT);
         factory.addEvents(SlashCommandInteractionEvent.class, StringSelectInteractionEvent.class);
         factory.addListener(SlashCommandInteractionEvent.class, "add_group", new AddGroupListener(database));
         factory.addListener(SlashCommandInteractionEvent.class, "del_group", new DelGroupListener(database));
         factory.addListener(SlashCommandInteractionEvent.class, "desc", new DescListener(payloadManager));
         factory.addListener(StringSelectInteractionEvent.class, "group-list", new DescSSGroupsEvent(payloadManager));
         factory.addListener(StringSelectInteractionEvent.class, "week-list", new DescSSWeekListener(payloadManager));
+
+        builder.enableIntents(GatewayIntent.MESSAGE_CONTENT);
         builder.addEventListeners(new ListenerReader(factory));
         JDA bot = builder.build();
 

@@ -6,6 +6,7 @@ import org.redbad.DescWeek;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Group {
     public String group_name;
     public List<Long[]> chats;

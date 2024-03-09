@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+
 public class Utils {
     public static SimpleDateFormat weekdayPattern = new SimpleDateFormat("EEEE");
     public static SimpleDateFormat datePattern = new SimpleDateFormat("dd.MM.yyyy");
