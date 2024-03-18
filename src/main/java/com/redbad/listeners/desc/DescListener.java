@@ -1,10 +1,12 @@
 package com.redbad.listeners.desc;
 
 import com.redbad.objects.Listener;
+import com.redbad.objects.Payload;
 import com.redbad.utils.ComponentsPayload;
 import com.redbad.utils.MessageConstructor;
 import com.redbad.utils.Utils;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.redbad.*;
 
 import java.text.ParseException;
@@ -21,9 +23,10 @@ public class DescListener implements Listener<SlashCommandInteractionEvent> {
     }
 
     public void run(SlashCommandInteractionEvent event, Parser parser) {
-        Map<String, String> groups = parser.get_groups();
         MessageConstructor constructor = new MessageConstructor();
+        event.deferReply(true).queue();
         if (event.getOption("group") != null) {
+            Map<String, String> groups = parser.get_groups();
             String groupName = Objects.requireNonNull(event.getOption("group")).getAsString().toUpperCase();
             if (groups.containsKey(groupName)) {
                 try {
@@ -31,21 +34,24 @@ public class DescListener implements Listener<SlashCommandInteractionEvent> {
                     if (!week.days.isEmpty()) {
                         constructor.buildStringSelect(payloadManager.addPayload("week-list", groups.get(groupName)), Utils.getWeekdays(week.days), groupName+" | ВЫБЕРИТЕ ДЕНЬ НЕДЕЛИ", false);
                         constructor.addContent(String.format("%s - %s", Utils.datePattern.format(week.startDate), Utils.datePattern.format(week.endDate)));
-                        event.deferReply().flatMap(v -> event.getHook().editOriginal(constructor.buildAsEdit())).queue();
+                        constructor.addButtons(
+                                Button.success(payloadManager.addPayload("swap-week", new Payload().put("memberId", event.getMember().getIdLong()).put("groupLink", week.lastWeekHREF)), "ПРЕД. НЕДЕЛЯ"),
+                                Button.primary(payloadManager.addPayload("choice-group", event.getMember().getIdLong()), "СПИСОК ГРУПП"),
+                                Button.success(payloadManager.addPayload("swap-week", new Payload().put("memberId", event.getMember().getIdLong()).put("groupLink", week.nextWeekHREF)), "СЛЕД. НЕДЕЛЯ")
+                        );
+                        event.getHook().editOriginal(constructor.buildAsEdit()).queue();
                     }
                     else
-                        event.deferReply(true).flatMap(v -> event.getHook().editOriginalFormat("У данной группы нет пар на этой неделе!")).queue();
+                        event.getHook().editOriginalFormat("У данной группы нет пар на этой неделе!").queue();
                     } catch (ParseException ignored) {}
             } else {
-                event.deferReply(true).flatMap(v -> event.getHook().editOriginalFormat("Группа не найдена!")).queue();
+                event.getHook().editOriginalFormat("Группа не найдена!").queue();
             }
         } else {
-            List<Map<String, String>> dividedGroups = Utils.divideMap(groups);
-            dividedGroups.forEach(item -> {
-                int index = dividedGroups.indexOf(item);
-                    constructor.buildStringSelect("group-list-" + index, item, "ВЫБЕРИТЕ ГРУППУ | ЛИСТ " + (index+1), true);
-            });
-            event.deferReply(false).flatMap(v -> event.getHook().editOriginal(constructor.buildAsEdit())).queue();
+            Map<Integer, Map<String, String>> groups = parser.get_groups_course();
+            Map<Integer, List<Map<String, String>>> dividedGroups = Utils.divideCoursesMaps(groups);
+            dividedGroups.forEach((course, item) -> item.forEach(map -> constructor.buildStringSelect(String.format("group-list-%s-%s", course, item.indexOf(map)), map, "ВЫБЕРИТЕ ГРУППУ | КУРС " + course, true)));
+            event.getHook().editOriginal(constructor.buildAsEdit()).queue();
         }
     }
 }

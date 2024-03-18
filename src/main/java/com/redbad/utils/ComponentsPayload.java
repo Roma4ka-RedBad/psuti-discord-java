@@ -2,13 +2,18 @@ package com.redbad.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class ComponentsPayload {
     public Map<String, Object> payloads;
+    public ScheduledExecutorService scheduler;
 
     public ComponentsPayload() {
         this.payloads = new HashMap<>();
+        scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
     public boolean existsNumericPID(int npid) {
@@ -31,17 +36,13 @@ public class ComponentsPayload {
     public String addPayload(String componentId, Object payload) {
         String pid = String.format("%s:%s", componentId, genNumericPID());
         payloads.put(pid, payload);
+        scheduler.schedule(() -> {
+            payloads.remove(pid);
+        }, 15, TimeUnit.MINUTES);
         return pid;
     }
 
-    public void dropPayload(String pid) {
-        payloads.remove(pid);
-    }
-
-    public Object getPayload(String pid, boolean andDrop) {
-        Object payload = payloads.get(pid);
-        if (andDrop)
-            dropPayload(pid);
-        return payload;
+    public Object getPayload(String pid) {
+        return payloads.get(pid);
     }
 }

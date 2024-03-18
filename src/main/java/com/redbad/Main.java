@@ -3,14 +3,13 @@ package com.redbad;
 import com.redbad.listeners.*;
 import com.redbad.listeners.add_group.AddGroupListener;
 import com.redbad.listeners.del_group.DelGroupListener;
-import com.redbad.listeners.desc.DescListener;
-import com.redbad.listeners.desc.DescSSGroupsEvent;
-import com.redbad.listeners.desc.DescSSWeekListener;
+import com.redbad.listeners.desc.*;
 import com.redbad.utils.ComponentsPayload;
 import com.redbad.utils.ListenerFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -30,12 +29,14 @@ public class Main {
             return;
         }
 
-        factory.addEvents(SlashCommandInteractionEvent.class, StringSelectInteractionEvent.class);
+        factory.addEvents(SlashCommandInteractionEvent.class, StringSelectInteractionEvent.class, ButtonInteractionEvent.class);
         factory.addListener(SlashCommandInteractionEvent.class, "add_group", new AddGroupListener(database));
         factory.addListener(SlashCommandInteractionEvent.class, "del_group", new DelGroupListener(database));
         factory.addListener(SlashCommandInteractionEvent.class, "desc", new DescListener(payloadManager));
         factory.addListener(StringSelectInteractionEvent.class, "group-list", new DescSSGroupsEvent(payloadManager));
         factory.addListener(StringSelectInteractionEvent.class, "week-list", new DescSSWeekListener(payloadManager));
+        factory.addListener(ButtonInteractionEvent.class, "choice-group", new DescBtnChoiceEvent(payloadManager));
+        factory.addListener(ButtonInteractionEvent.class, "swap-week", new DescBtnSwapEvent(payloadManager));
 
         builder.enableIntents(GatewayIntent.MESSAGE_CONTENT);
         builder.addEventListeners(new ListenerReader(factory));

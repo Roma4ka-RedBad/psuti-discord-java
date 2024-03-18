@@ -18,8 +18,9 @@ public class AddGroupListener implements Listener<SlashCommandInteractionEvent> 
     }
 
     public void run(SlashCommandInteractionEvent event, Parser parser) {
+        event.deferReply(true).queue();
         String groupName = Objects.requireNonNull(event.getOption("group")).getAsString().toUpperCase();
-        long guildId = (event.getGuild() == null) ? 0 : Long.parseLong(event.getGuild().getId());
+        long guildId = (event.getGuild() == null) ? 0 : event.getGuild().getIdLong();
         long channelId = Long.parseLong(event.getChannel().getId());
         Map<String, String> groups = parser.get_groups();
         DescWeek totalWeek, nextWeek;
@@ -29,14 +30,14 @@ public class AddGroupListener implements Listener<SlashCommandInteractionEvent> 
                 totalWeek = parser.get_desc_by_group(groups.get(groupName)).get_week();
                 nextWeek = parser.get_desc_by_group(totalWeek.nextWeekHREF).get_week();
             } catch (Exception err) {
-                event.deferReply(true).flatMap(v -> event.getHook().editOriginalFormat("_Произошла ошибка! Попробуйте позже._")).queue();
+                event.getHook().editOriginalFormat("_Произошла ошибка! Попробуйте позже._").queue();
                 return;
             }
 
             database.addSqlGroup(groupName, totalWeek, nextWeek, guildId, channelId);
-            event.deferReply(true).flatMap(v -> event.getHook().editOriginalFormat(String.format("_Группа **%s** добавлена в лист событий!_", groupName))).queue();
+            event.getHook().editOriginalFormat(String.format("_Группа **%s** добавлена в лист событий!_", groupName)).queue();
         } else {
-            event.deferReply(true).flatMap(v -> event.getHook().editOriginalFormat("_Группа не найдена или уже добавлена для этого чата!_")).queue();
+            event.getHook().editOriginalFormat("_Группа не найдена или уже добавлена для этого чата!_").queue();
         }
     }
 }

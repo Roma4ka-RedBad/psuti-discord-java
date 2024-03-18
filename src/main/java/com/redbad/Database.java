@@ -21,10 +21,9 @@ public class Database {
 
     public boolean preloadFromDB() {
         try {
-            for (Map<String, Object> group : driver.sqlSelectData("*", "groups")) {
+            for (Map<String, Object> group : driver.sqlSelectData("*", "groups", "")) {
                 Object name = group.get("name");
                 Parser parser = new Parser();
-                parser.getHTMLModel("");
                 if (!parser.requestBody.isDone) {
                     return false;
                 }

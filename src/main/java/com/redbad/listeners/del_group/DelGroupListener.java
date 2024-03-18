@@ -16,15 +16,16 @@ public class DelGroupListener implements Listener<SlashCommandInteractionEvent> 
     }
 
     public void run(SlashCommandInteractionEvent event, Parser parser) {
+        event.deferReply(true).queue();
         String groupName = Objects.requireNonNull(event.getOption("group")).getAsString().toUpperCase();
-        long guildId = (event.getGuild() == null) ? 0 : Long.parseLong(event.getGuild().getId());
+        long guildId = (event.getGuild() == null) ? 0 : event.getGuild().getIdLong();
         long channelId = Long.parseLong(event.getChannel().getId());
 
         if (database.chatAndGroupExists(groupName, guildId, channelId)) {
             database.delGroup(groupName, guildId, channelId);
-            event.deferReply(true).flatMap(v -> event.getHook().editOriginalFormat(String.format("_Группа **%s** удалена из листа событий!_", groupName))).queue();
+            event.getHook().editOriginalFormat(String.format("_Группа **%s** удалена из листа событий!_", groupName)).queue();
         } else {
-            event.deferReply(true).flatMap(v -> event.getHook().editOriginalFormat("_Группа не найдена или уже удалена для этого чата!_")).queue();
+            event.getHook().editOriginalFormat("_Группа не найдена или уже удалена для этого чата!_").queue();
         }
     }
 }

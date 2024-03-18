@@ -1,11 +1,13 @@
 package com.redbad.utils;
 
+import com.redbad.objects.DatabaseDriver;
+
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
 
 
-public class SqliteDriver {
+public class SqliteDriver implements DatabaseDriver {
     public final Connection connection;
 
     public SqliteDriver(String fileName) throws SQLException, ClassNotFoundException {
@@ -23,16 +25,11 @@ public class SqliteDriver {
 
     public List<Map<String, Object>> sqlSelectData(String fields, String table, String condition) throws SQLException {
         Statement cursor = connection.createStatement();
-        ResultSet resultSet = cursor.executeQuery(String.format("SELECT %s FROM '%s' WHERE %s;", fields, table, condition));
-        List<Map<String, Object>> resultList = Utils.parseResultSet(resultSet);
-        resultSet.close();
-        cursor.close();
-        return resultList;
-    }
-
-    public List<Map<String, Object>> sqlSelectData(String fields, String table) throws SQLException {
-        Statement cursor = connection.createStatement();
-        ResultSet resultSet = cursor.executeQuery(String.format("SELECT %s FROM '%s';", fields, table));
+        ResultSet resultSet;
+        if (condition.isEmpty())
+            resultSet = cursor.executeQuery(String.format("SELECT %s FROM '%s';", fields, table));
+        else
+            resultSet = cursor.executeQuery(String.format("SELECT %s FROM '%s' WHERE %s;", fields, table, condition));
         List<Map<String, Object>> resultList = Utils.parseResultSet(resultSet);
         resultSet.close();
         cursor.close();

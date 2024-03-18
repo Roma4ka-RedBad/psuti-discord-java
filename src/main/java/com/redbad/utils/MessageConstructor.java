@@ -57,12 +57,8 @@ public class MessageConstructor {
         builder.addEmbeds(embed.build());
     }
 
-    public void addButton() {
-        builder.addActionRow(
-                Button.primary("test1", "ПРЕД. НЕДЕЛЯ"),
-                Button.primary("test2", "НАЗАД"),
-                Button.primary("test3", "СЛЕД. НЕДЕЛЯ")
-        );
+    public void addButtons(Button... buttons) {
+        builder.addActionRow(buttons);
     }
 
     public void addContent(String content) {

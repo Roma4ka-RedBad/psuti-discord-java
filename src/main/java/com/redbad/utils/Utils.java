@@ -1,9 +1,6 @@
 package com.redbad.utils;
 
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import org.redbad.DescDay;
-import org.redbad.Parser;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -15,24 +12,6 @@ import java.util.*;
 public class Utils {
     public static SimpleDateFormat weekdayPattern = new SimpleDateFormat("EEEE");
     public static SimpleDateFormat datePattern = new SimpleDateFormat("dd.MM.yyyy");
-
-    public static boolean checkSiteConnection(Parser parser, SlashCommandInteractionEvent event) {
-        parser.getHTMLModel("");
-        if (!parser.requestBody.isDone) {
-            event.deferReply(true).flatMap(v -> event.getHook().editOriginalFormat("Упс! Кажется сайт накрылся :)")).queue();
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean checkSiteConnection(Parser parser, StringSelectInteractionEvent event) {
-        parser.getHTMLModel("");
-        if (!parser.requestBody.isDone) {
-            event.deferReply(true).flatMap(v -> event.getHook().editOriginalFormat("Упс! Кажется сайт накрылся :)")).queue();
-            return true;
-        }
-        return false;
-    }
 
     public static StringBuilder[] buildSqliteGroups(Map<String, Object> map) {
         StringBuilder fields = new StringBuilder("(");
@@ -95,6 +74,14 @@ public class Utils {
             parts.add(subMap);
         }
         return parts;
+    }
+
+    public static Map<Integer, List<Map<String, String>>> divideCoursesMaps(Map<Integer, Map<String, String>> courses) {
+        Map<Integer, List<Map<String, String>>> coursesParts = new HashMap<>();
+        for (Map.Entry<Integer, Map<String, String>> entry : courses.entrySet()) {
+            coursesParts.put(entry.getKey(), divideMap(entry.getValue()));
+        }
+        return coursesParts;
     }
 
     public static boolean containsArray(List<Long[]> list, Long[] targetArray) {
